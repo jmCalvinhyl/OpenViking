@@ -534,6 +534,7 @@ function MarkdownImage({
     }
     return null
   }
+  if (!resolvedSrc) return null
 
   const image = (
     <img
@@ -1654,6 +1655,14 @@ export function FilePreview({
   )
   const showHeader = !(hideDirectoryHeader && file.isDir)
   const previewFile = resolvedFile || file
+  const sizeLabel = formatSize(previewFile.sizeBytes ?? previewFile.size, {
+    fallback: '',
+  })
+  const modTimeLabel =
+    previewFile.modTime && previewFile.modTime !== '-'
+      ? previewFile.modTime
+      : ''
+  const fileMetadata = [sizeLabel, modTimeLabel].filter(Boolean).join(' · ')
   const showJsonPreview =
     !editing &&
     !previewLoading &&
@@ -1670,12 +1679,6 @@ export function FilePreview({
               <div className="truncate text-sm font-medium leading-5">
                 {file.name}
               </div>
-              {!file.isDir ? (
-                <div className="text-xs leading-5 text-muted-foreground">
-                  {formatSize(previewFile.sizeBytes ?? previewFile.size)} ·{' '}
-                  {previewFile.modTime || '-'}
-                </div>
-              ) : null}
             </div>
             {editing ? (
               <div className="flex items-center gap-1">
@@ -2118,6 +2121,11 @@ export function FilePreview({
           </div>
         </ScrollArea>
       )}
+      {!file.isDir && fileMetadata ? (
+        <footer className="shrink-0 border-t px-4 py-2 text-xs text-muted-foreground">
+          {fileMetadata}
+        </footer>
+      ) : null}
     </div>
   )
 }
